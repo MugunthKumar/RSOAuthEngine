@@ -185,7 +185,8 @@
   
   ACAccountStore *account = [[ACAccountStore alloc] init];
   ACAccountType *accountType = [account accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
-  
+  self.statusChangeHandler(@"Authenticating...");
+
   [account requestAccessToAccountsWithType:accountType withCompletionHandler:^(BOOL granted, NSError *error) 
    {
      if (!granted) {
@@ -200,6 +201,7 @@
      
      if([arrayOfAccounts count] == 1) {
        self.iOS5TwitterAccount = [arrayOfAccounts objectAtIndex:0];
+       _screenName = self.iOS5TwitterAccount.username;
        completionBlock();
        return;      
      } else {
@@ -210,6 +212,7 @@
          [buttonsArray addObject:((ACAccount*)obj).username];
        }];
        
+       self.statusChangeHandler(@"Waiting for user authorization...");
        [UIActionSheet actionSheetWithTitle:@"Choose your Twitter account" 
                                    message:nil 
                                    buttons:buttonsArray 
@@ -217,6 +220,8 @@
                                  onDismiss:^(int buttonIndex) {
                                    
                                    self.iOS5TwitterAccount = [arrayOfAccounts objectAtIndex:buttonIndex];
+                                   _screenName = self.iOS5TwitterAccount.username;
+
                                    completionBlock();
                                  } onCancel:^{
                                    
@@ -324,6 +329,11 @@
 
 #pragma mark - Public Methods
 
+-(BOOL) isAuthenticated {
+  
+  if(self.iOS5TwitterAccount) return YES;
+  else return [super isAuthenticated];
+}
 
 - (void)sendTweet:(NSString *)tweet withCompletionBlock:(RSTwitterEngineCompletionBlock)completionBlock
 {
@@ -347,13 +357,14 @@
     
     TWRequest *postRequest = [[TWRequest alloc] initWithURL:
                               [NSURL URLWithString:@"http://api.twitter.com/1/statuses/update.json"] 
-                                                 parameters:[NSDictionary dictionaryWithObject:@"abc" 
+                                                 parameters:[NSDictionary dictionaryWithObject:tweet 
                                                                                         forKey:@"status"] requestMethod:TWRequestMethodPOST];
     
     [postRequest setAccount:self.iOS5TwitterAccount];
     [postRequest performRequestWithHandler:^(NSData *responseData, NSHTTPURLResponse *urlResponse, NSError *error) 
      {
        NSLog(@"Twitter response, HTTP response: %i", [urlResponse statusCode]);
+       completionBlock(error);
      }];
   }  else {
     // Fill the post body with the tweet

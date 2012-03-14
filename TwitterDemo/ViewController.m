@@ -115,31 +115,35 @@
         self.sendButton.enabled = NO;
         
         [self.twitterEngine sendTweet:self.textView.text withCompletionBlock:^(NSError *error) {
+          
+          dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
-                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
-                                                                message:[error localizedDescription]
-                                                               delegate:nil
-                                                      cancelButtonTitle:@"Dismiss"
-                                                      otherButtonTitles:nil];
-                [alert show];
+              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                              message:[error localizedDescription]
+                                                             delegate:nil
+                                                    cancelButtonTitle:@"Dismiss"
+                                                    otherButtonTitles:nil];
+              [alert show];
             } else {
-                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"QuickTweet!"
-                                                                message:@"Tweet posted successfully!"
-                                                               delegate:nil
-                                                      cancelButtonTitle:@"Dismiss"
-                                                      otherButtonTitles:nil];
-                [alert show];
-                
-                self.textView.text = @"";
+              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"QuickTweet!"
+                                                              message:@"Tweet posted successfully!"
+                                                             delegate:nil
+                                                    cancelButtonTitle:@"Dismiss"
+                                                    otherButtonTitles:nil];
+              [alert show];
+              
+              self.textView.text = @"";
             }
             
             self.sendButton.enabled = YES;
-
+            
             if (self.twitterEngine.isAuthenticated) {
-                self.statusLabel.text = [NSString stringWithFormat:@"Signed in as @%@.", self.twitterEngine.screenName];
+              self.statusLabel.text = [NSString stringWithFormat:@"Signed in as @%@.", self.twitterEngine.screenName];
             } else {
-                self.statusLabel.text = @"Not signed in.";
-            }
+              self.statusLabel.text = @"Not signed in.";
+            }            
+          });
+
         }];
     }
 }
