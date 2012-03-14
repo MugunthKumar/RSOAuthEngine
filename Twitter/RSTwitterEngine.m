@@ -380,6 +380,7 @@
                                           httpMethod:@"POST"
                                                  ssl:YES];
     
+    [op setFreezable:YES];
     [op onCompletion:^(MKNetworkOperation *completedOperation) {
       completionBlock(nil);
     } onError:^(NSError *error) {
