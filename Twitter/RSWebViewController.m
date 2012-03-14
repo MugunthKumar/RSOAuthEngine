@@ -1,5 +1,5 @@
 //
-//  WebViewController.m
+//  RSWebViewController.m
 //  TwitterDemo
 //
 //  Created by Rodrigo Sieiro on 12/11/11.
@@ -23,12 +23,12 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
-#import "WebViewController.h"
+#import "RSWebViewController.h"
 #import "AppDelegate.h"
 
 // Private Methods
 // this should be added before implementation 
-@interface WebViewController (/*Private Methods*/)
+@interface RSWebViewController (/*Private Methods*/)
 @property (retain, nonatomic) NSURL *currentURL;
 @property (unsafe_unretained, nonatomic) IBOutlet UIWebView *webView;
 @property (unsafe_unretained, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
@@ -36,7 +36,7 @@
 - (IBAction)cancelAction:(id)sender;
 @end
 
-@implementation WebViewController
+@implementation RSWebViewController
 
 @synthesize currentURL = _currentURL;
 @synthesize webView = _webView;
@@ -50,7 +50,7 @@
 
 - (id)initWithURL:(NSURL *)url
 {
-  self = [self initWithNibName:@"WebViewController" bundle:nil];
+  self = [self initWithNibName:@"RSWebViewController" bundle:nil];
   
   if (self) {
     self.currentURL = url;

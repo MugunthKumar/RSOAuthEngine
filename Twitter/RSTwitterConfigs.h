@@ -9,6 +9,7 @@
 #ifndef TwitterDemo_RSTwitterConfigs_h
 #define TwitterDemo_RSTwitterConfigs_h
 
+// You can get these information by creating an app at twitter.com/apps
 
 #define TW_CONSUMER_KEY @"UOMKm7KaBpIQXWqMRaXwvw"
 #define TW_CONSUMER_SECRET @"CZMJlf2R2ttsg85i1GbaD35Pxs0CzMU5RJECekTw8"

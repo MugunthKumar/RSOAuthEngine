@@ -1,9 +1,9 @@
 //
-//  AuthViewController.h
-//  InstapaperDemo
+//  RSWebViewController.h
+//  TwitterDemo
 //
-//  Created by Rodrigo Sieiro on 07/02/12.
-//  Copyright (c) 2012 Rodrigo Sieiro <rsieiro@sharpcube.com>. All rights reserved.
+//  Created by Rodrigo Sieiro on 12/11/11.
+//  Copyright (c) 2011 Rodrigo Sieiro <rsieiro@sharpcube.com>. All rights reserved.
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -25,22 +25,12 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol AuthViewControllerDelegate;
+@interface RSWebViewController : UIViewController <UIWebViewDelegate>
 
-@interface AuthViewController : UIViewController <UITextFieldDelegate>
+@property (strong, nonatomic) NSString *callbackURL;
 
-@property (assign, nonatomic) id <AuthViewControllerDelegate> delegate;
-@property (unsafe_unretained, nonatomic) IBOutlet UITextField *usernameField;
-@property (unsafe_unretained, nonatomic) IBOutlet UITextField *passwordField;
+@property (nonatomic, copy) void (^authenticationCompletedHandler)(NSURL *url);
+@property (nonatomic, copy) void (^authenticationCanceledHandler)();
 
-- (IBAction)authenticate:(id)sender;
-- (IBAction)cancelAuthentication:(id)sender;
-
-@end
-
-@protocol AuthViewControllerDelegate <NSObject>
-
-- (void)cancelAuthentication;
-- (void)authenticateWithUsername:(NSString *)username password:(NSString *)password;
-
+- (id)initWithURL:(NSURL *)url;
 @end

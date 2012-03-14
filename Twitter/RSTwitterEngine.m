@@ -24,8 +24,11 @@
 //  THE SOFTWARE.
 
 #import "RSTwitterEngine.h"
-#import "WebViewController.h"
+#import "RSWebViewController.h"
 #import "RSTwitterConfigs.h"
+#import "UIActionSheet+MKBlockAdditions.h"
+#import <Twitter/Twitter.h>
+#import <Accounts/Accounts.h>
 
 // Default twitter hostname and paths
 #define TW_HOSTNAME @"api.twitter.com"
@@ -41,8 +44,11 @@
 - (void)removeOAuthTokenFromKeychain;
 - (void)storeOAuthTokenInKeychain;
 - (void)retrieveOAuthTokenFromKeychain;
+- (void)resumeAuthenticationFlowWithURL:(NSURL *)url;
+- (void)cancelAuthentication;
 
-@property (strong, nonatomic) WebViewController *webController;
+@property (strong, nonatomic) RSWebViewController *webController;
+@property (strong, nonatomic) ACAccount *iOS5TwitterAccount;
 @end
 
 @implementation RSTwitterEngine
@@ -50,6 +56,7 @@
 @synthesize webController = _webController;
 @synthesize statusChangeHandler = _statusChangeHandler;
 @synthesize presentingViewController = _presentingViewController;
+@synthesize iOS5TwitterAccount = _iOS5TwitterChosenAccount;
 
 #pragma mark - Read-only Properties
 
@@ -172,38 +179,94 @@
 
 #pragma mark - OAuth Authentication Flow
 
+-(void) tryiOS5TwitterAccountAuthOnCompletion:(void (^)(void)) completionBlock {
+  
+  if(![ACAccountStore class]) completionBlock();
+  
+  ACAccountStore *account = [[ACAccountStore alloc] init];
+  ACAccountType *accountType = [account accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
+  
+  [account requestAccessToAccountsWithType:accountType withCompletionHandler:^(BOOL granted, NSError *error) 
+   {
+     if (!granted) {
+       completionBlock();
+       return;      
+     }
+     NSArray *arrayOfAccounts = [account accountsWithAccountType:accountType];       
+     if([arrayOfAccounts count] <= 0) {
+       completionBlock();
+       return;      
+     }
+     
+     if([arrayOfAccounts count] == 1) {
+       self.iOS5TwitterAccount = [arrayOfAccounts objectAtIndex:0];
+       completionBlock();
+       return;      
+     } else {
+       
+       NSMutableArray *buttonsArray = [NSMutableArray array];
+       [arrayOfAccounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+         
+         [buttonsArray addObject:((ACAccount*)obj).username];
+       }];
+       
+       [UIActionSheet actionSheetWithTitle:@"Choose your Twitter account" 
+                                   message:nil 
+                                   buttons:buttonsArray 
+                                showInView:self.presentingViewController.view 
+                                 onDismiss:^(int buttonIndex) {
+                                   
+                                   self.iOS5TwitterAccount = [arrayOfAccounts objectAtIndex:buttonIndex];
+                                   completionBlock();
+                                 } onCancel:^{
+                                   
+                                   self.iOS5TwitterAccount = nil;
+                                   completionBlock();
+                                 }];         
+     }
+   }];  
+}
+
 - (void)authenticateWithCompletionBlock:(RSTwitterEngineCompletionBlock)completionBlock
 {
-  // Store the Completion Block to call after Authenticated
-  _oAuthCompletionBlock = [completionBlock copy];
   
-  // First we reset the OAuth token, so we won't send previous tokens in the request
-  [self resetOAuthToken];
-  
-  // OAuth Step 1 - Obtain a request token
-  MKNetworkOperation *op = [self operationWithPath:TW_REQUEST_TOKEN
-                                            params:nil
-                                        httpMethod:@"POST"
-                                               ssl:YES];
-  
-  [op onCompletion:^(MKNetworkOperation *completedOperation)
-   {
-     // Fill the request token with the returned data
-     [self fillTokenWithResponseBody:[completedOperation responseString] type:RSOAuthRequestToken];
-     
-     // OAuth Step 2 - Redirect user to authorization page
-     self.statusChangeHandler(@"Waiting for user authorization...");
-     NSURL *url = [NSURL URLWithString:TW_AUTHORIZE(self.token)];
-     [self openURL:url];
-   } 
-           onError:^(NSError *error)
-   {
-     completionBlock(error);
-     _oAuthCompletionBlock = nil;
-   }];
-  
-  self.statusChangeHandler(@"Requesting Tokens...");
-  [self enqueueSignedOperation:op];
+  [self tryiOS5TwitterAccountAuthOnCompletion:^{
+    if(!self.iOS5TwitterAccount) {
+      
+      // Store the Completion Block to call after Authenticated
+      _oAuthCompletionBlock = [completionBlock copy];
+      // First we reset the OAuth token, so we won't send previous tokens in the request
+      [self resetOAuthToken];
+      
+      // OAuth Step 1 - Obtain a request token
+      MKNetworkOperation *op = [self operationWithPath:TW_REQUEST_TOKEN
+                                                params:nil
+                                            httpMethod:@"POST"
+                                                   ssl:YES];
+      
+      [op onCompletion:^(MKNetworkOperation *completedOperation)
+       {
+         // Fill the request token with the returned data
+         [self fillTokenWithResponseBody:[completedOperation responseString] type:RSOAuthRequestToken];
+         
+         // OAuth Step 2 - Redirect user to authorization page
+         self.statusChangeHandler(@"Waiting for user authorization...");
+         NSURL *url = [NSURL URLWithString:TW_AUTHORIZE(self.token)];
+         [self openURL:url];
+       } 
+               onError:^(NSError *error)
+       {
+         completionBlock(error);
+         _oAuthCompletionBlock = nil;
+       }];
+      
+      self.statusChangeHandler(@"Requesting Tokens...");
+      [self enqueueSignedOperation:op];
+      
+    } else {
+      completionBlock(nil);
+    }
+  }];    
 }
 
 - (void)resumeAuthenticationFlowWithURL:(NSURL *)url
@@ -261,8 +324,10 @@
 
 #pragma mark - Public Methods
 
+
 - (void)sendTweet:(NSString *)tweet withCompletionBlock:(RSTwitterEngineCompletionBlock)completionBlock
 {
+  
   if (!self.isAuthenticated) {
     [self authenticateWithCompletionBlock:^(NSError *error) {
       if (error) {
@@ -278,47 +343,62 @@
     return;
   }
   
-  // Fill the post body with the tweet
-  NSMutableDictionary *postParams = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                     tweet, @"status",
-                                     nil];
+  if(self.iOS5TwitterAccount) {
+    
+    TWRequest *postRequest = [[TWRequest alloc] initWithURL:
+                              [NSURL URLWithString:@"http://api.twitter.com/1/statuses/update.json"] 
+                                                 parameters:[NSDictionary dictionaryWithObject:@"abc" 
+                                                                                        forKey:@"status"] requestMethod:TWRequestMethodPOST];
+    
+    [postRequest setAccount:self.iOS5TwitterAccount];
+    [postRequest performRequestWithHandler:^(NSData *responseData, NSHTTPURLResponse *urlResponse, NSError *error) 
+     {
+       NSLog(@"Twitter response, HTTP response: %i", [urlResponse statusCode]);
+     }];
+  }  else {
+    // Fill the post body with the tweet
+    NSMutableDictionary *postParams = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                       tweet, @"status",
+                                       nil];
+    
+    // If the user marks the option "HTTPS Only" in his/her profile,
+    // Twitter will fail all non-auth requests that use only HTTP
+    // with a misleading "OAuth error". I guess it's a bug.
+    MKNetworkOperation *op = [self operationWithPath:TW_STATUS_UPDATE 
+                                              params:postParams
+                                          httpMethod:@"POST"
+                                                 ssl:YES];
+    
+    [op onCompletion:^(MKNetworkOperation *completedOperation) {
+      completionBlock(nil);
+    } onError:^(NSError *error) {
+      completionBlock(error);
+    }];
+    
+    self.statusChangeHandler(@"Sending tweet...");
+    [self enqueueSignedOperation:op];  
+  }
   
-  // If the user marks the option "HTTPS Only" in his/her profile,
-  // Twitter will fail all non-auth requests that use only HTTP
-  // with a misleading "OAuth error". I guess it's a bug.
-  MKNetworkOperation *op = [self operationWithPath:TW_STATUS_UPDATE 
-                                            params:postParams
-                                        httpMethod:@"POST"
-                                               ssl:YES];
-  
-  [op onCompletion:^(MKNetworkOperation *completedOperation) {
-    completionBlock(nil);
-  } onError:^(NSError *error) {
-    completionBlock(error);
-  }];
-  
-  self.statusChangeHandler(@"Sending tweet...");
-  [self enqueueSignedOperation:op];    
 }
 
 -(void) openURL:(NSURL*) url {
   
-  self.webController = [[WebViewController alloc] initWithURL:url];  
+  self.webController = [[RSWebViewController alloc] initWithURL:url];  
   self.webController.callbackURL = TW_CALLBACK_URL;
-
+  
   [self.presentingViewController presentModalViewController:self.webController animated:YES];
-
+  
   __unsafe_unretained RSTwitterEngine *weakSelf = self; 
   
   self.webController.authenticationCanceledHandler = ^{
-
+    
     __strong RSTwitterEngine *strongSelf = weakSelf; 
     [strongSelf.presentingViewController dismissModalViewControllerAnimated:YES];
     [strongSelf cancelAuthentication];
   };
   
   self.webController.authenticationCompletedHandler = ^(NSURL* url) {
-  
+    
     __strong RSTwitterEngine *strongSelf = weakSelf; 
     [strongSelf.presentingViewController dismissModalViewControllerAnimated:YES];
     [strongSelf resumeAuthenticationFlowWithURL:url];

@@ -1,8 +1,8 @@
 //
-//  WebViewController.h
-//  TwitterDemo
+//  RSTwitterEngine.h
+//  RSOAuthEngine
 //
-//  Created by Rodrigo Sieiro on 12/11/11.
+//  Created by Rodrigo Sieiro on 12/8/11.
 //  Copyright (c) 2011 Rodrigo Sieiro <rsieiro@sharpcube.com>. All rights reserved.
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,14 +23,27 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
-#import <UIKit/UIKit.h>
+#import "RSOAuthEngine.h"
 
-@interface WebViewController : UIViewController <UIWebViewDelegate>
+@protocol RSTwitterEngineDelegate;
 
-@property (strong, nonatomic) NSString *callbackURL;
+typedef void (^RSTwitterEngineCompletionBlock)(NSError *error);
+typedef void (^RSTwitterEngineStatusChangeHandler)(NSString *newStatus);
 
-@property (nonatomic, copy) void (^authenticationCompletedHandler)(NSURL *url);
-@property (nonatomic, copy) void (^authenticationCanceledHandler)();
+@interface RSTwitterEngine : RSOAuthEngine
+{
+    RSTwitterEngineCompletionBlock _oAuthCompletionBlock;
+    NSString *_screenName;
+}
 
-- (id)initWithURL:(NSURL *)url;
+@property (nonatomic, copy) RSTwitterEngineStatusChangeHandler statusChangeHandler;
+@property (assign, nonatomic) UIViewController *presentingViewController;
+
+@property (readonly) NSString *screenName;
+
+- (id)initWithStatusChangedHandler:(RSTwitterEngineStatusChangeHandler) handler;
+- (void)authenticateWithCompletionBlock:(RSTwitterEngineCompletionBlock)completionBlock;
+- (void)forgetStoredToken;
+- (void)sendTweet:(NSString *)tweet withCompletionBlock:(RSTwitterEngineCompletionBlock)completionBlock;
+
 @end

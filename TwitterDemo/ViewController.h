@@ -25,7 +25,6 @@
 
 #import <UIKit/UIKit.h>
 #import "RSTwitterEngine.h"
-#import "WebViewController.h"
 
 @interface ViewController : UIViewController
 
