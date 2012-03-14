@@ -29,7 +29,7 @@
 // Private Methods
 // this should be added before implementation 
 @interface RSWebViewController (/*Private Methods*/)
-@property (retain, nonatomic) NSURL *currentURL;
+@property (unsafe_unretained, nonatomic) NSURL *currentURL;
 @property (unsafe_unretained, nonatomic) IBOutlet UIWebView *webView;
 @property (unsafe_unretained, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
 

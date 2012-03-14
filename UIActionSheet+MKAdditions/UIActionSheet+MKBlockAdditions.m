@@ -13,6 +13,16 @@ static CancelBlock _cancelBlock;
 
 @implementation UIActionSheet (MKBlockAdditions)
 
++(void) dealloc {
+  
+  [_cancelBlock release];
+  [_dismissBlock release];
+
+  _dismissBlock = nil;
+  _cancelBlock = nil;
+  [super dealloc];
+}
+
 +(void) actionSheetWithTitle:(NSString*) title
                      message:(NSString*) message
                      buttons:(NSArray*) buttonTitles
@@ -22,8 +32,7 @@ static CancelBlock _cancelBlock;
 {    
   
   [_cancelBlock release];
-  _cancelBlock  = [cancelled copy];
-  
+  _cancelBlock  = [cancelled copy]; 
   [_dismissBlock release];
   _dismissBlock  = [dismissed copy];
   
@@ -46,10 +55,7 @@ static CancelBlock _cancelBlock;
     [actionSheet showFromTabBar:(UITabBar*) view];
   
   if([view isKindOfClass:[UIBarButtonItem class]])
-    [actionSheet showFromBarButtonItem:(UIBarButtonItem*) view animated:YES];
-  
-  [actionSheet release];
-  
+    [actionSheet showFromBarButtonItem:(UIBarButtonItem*) view animated:YES];  
 }
 
 +(void)actionSheet:(UIActionSheet*) actionSheet didDismissWithButtonIndex:(NSInteger) buttonIndex
@@ -62,5 +68,7 @@ static CancelBlock _cancelBlock;
   {
     _dismissBlock(buttonIndex);
   }
+  
+  [actionSheet autorelease];
 }
 @end

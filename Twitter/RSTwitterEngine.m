@@ -49,6 +49,7 @@
 
 @property (strong, nonatomic) RSWebViewController *webController;
 @property (strong, nonatomic) ACAccount *iOS5TwitterAccount;
+
 @end
 
 @implementation RSTwitterEngine
@@ -193,7 +194,8 @@
        completionBlock();
        return;      
      }
-     NSArray *arrayOfAccounts = [account accountsWithAccountType:accountType];       
+
+     NSArray *arrayOfAccounts = [account accountsWithAccountType:accountType];
      if([arrayOfAccounts count] <= 0) {
        completionBlock();
        return;      
@@ -213,13 +215,14 @@
        }];
        
        self.statusChangeHandler(@"Waiting for user authorization...");
+
        [UIActionSheet actionSheetWithTitle:@"Choose your Twitter account" 
                                    message:nil 
                                    buttons:buttonsArray 
                                 showInView:self.presentingViewController.view 
                                  onDismiss:^(int buttonIndex) {
                                    
-                                   self.iOS5TwitterAccount = [arrayOfAccounts objectAtIndex:buttonIndex];
+                                   self.iOS5TwitterAccount = [[account accountsWithAccountType:accountType] objectAtIndex:buttonIndex];
                                    _screenName = self.iOS5TwitterAccount.username;
 
                                    completionBlock();

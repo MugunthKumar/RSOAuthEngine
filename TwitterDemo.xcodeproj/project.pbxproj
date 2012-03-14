@@ -408,6 +408,7 @@
 		5B9770E2149789C200791728 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TwitterDemo/TwitterDemo-Prefix.pch";
 				INFOPLIST_FILE = "TwitterDemo/TwitterDemo-Info.plist";
@@ -419,6 +420,7 @@
 		5B9770E3149789C200791728 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TwitterDemo/TwitterDemo-Prefix.pch";
 				INFOPLIST_FILE = "TwitterDemo/TwitterDemo-Info.plist";

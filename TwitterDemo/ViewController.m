@@ -113,7 +113,6 @@
     if (self.twitterEngine)
     {
         self.sendButton.enabled = NO;
-        
         [self.twitterEngine sendTweet:self.textView.text withCompletionBlock:^(NSError *error) {
           
           dispatch_async(dispatch_get_main_queue(), ^{
