@@ -11,10 +11,10 @@
 
 // You can get these information by creating an app at twitter.com/apps
 
-#define TW_CONSUMER_KEY @"UOMKm7KaBpIQXWqMRaXwvw"
-#define TW_CONSUMER_SECRET @"CZMJlf2R2ttsg85i1GbaD35Pxs0CzMU5RJECekTw8"
+#define TW_CONSUMER_KEY @""
+#define TW_CONSUMER_SECRET @""
 
 // This will be called after the user authorizes your app
-#define TW_CALLBACK_URL @"http://kulatribe.com/twitter_auth_token"
+#define TW_CALLBACK_URL @""
 
 #endif
