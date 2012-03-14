@@ -25,24 +25,12 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol WebViewControllerDelegate;
-
 @interface WebViewController : UIViewController <UIWebViewDelegate>
 
-@property (retain, nonatomic) NSURL *currentURL;
+@property (strong, nonatomic) NSString *callbackURL;
 
-@property (assign, nonatomic) id <WebViewControllerDelegate> delegate;
-@property (unsafe_unretained, nonatomic) IBOutlet UIWebView *webView;
-@property (unsafe_unretained, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
+@property (nonatomic, copy) void (^authenticationCompletedHandler)(NSURL *url);
+@property (nonatomic, copy) void (^authenticationCanceledHandler)();
 
 - (id)initWithURL:(NSURL *)url;
-- (IBAction)cancelAction:(id)sender;
-
-@end
-
-@protocol WebViewControllerDelegate <NSObject>
-
-- (void)dismissWebView;
-- (void)handleURL:(NSURL *)url;
-
 @end

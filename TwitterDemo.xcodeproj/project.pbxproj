@@ -77,6 +77,7 @@
 		5B9771231497927C00791728 /* RSTwitterEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RSTwitterEngine.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		5BAA64D51497D8CB00ED569D /* logo_cube_57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo_cube_57.png; path = ../logo_cube_57.png; sourceTree = "<group>"; };
 		5BAA64D71497D8D300ED569D /* logo_cube_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo_cube_114.png; path = ../logo_cube_114.png; sourceTree = "<group>"; };
+		AB31731715106A0B005530E3 /* RSTwitterConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RSTwitterConfigs.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -213,6 +214,7 @@
 			children = (
 				5B9771221497927C00791728 /* RSTwitterEngine.h */,
 				5B9771231497927C00791728 /* RSTwitterEngine.m */,
+				AB31731715106A0B005530E3 /* RSTwitterConfigs.h */,
 			);
 			path = Twitter;
 			sourceTree = "<group>";
@@ -243,7 +245,7 @@
 		5B9770BA149789C200791728 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 				ORGANIZATIONNAME = SharpCube;
 			};
 			buildConfigurationList = 5B9770BD149789C200791728 /* Build configuration list for PBXProject "TwitterDemo" */;

@@ -28,7 +28,6 @@
 @implementation ViewController
 
 @synthesize twitterEngine = _twitterEngine;
-@synthesize webView = _webView;
 @synthesize textView = _textView;
 @synthesize sendButton = _sendButton;
 @synthesize statusLabel = _statusLabel;
@@ -44,7 +43,10 @@
 {
     [super viewDidLoad];
     
-    self.twitterEngine = [[RSTwitterEngine alloc] initWithDelegate:self];
+    self.twitterEngine = [[RSTwitterEngine alloc] initWithStatusChangedHandler:^(NSString *newStatus) {
+
+      self.statusLabel.text = newStatus;
+    }];
     
     // A right swipe on the status label will clear the stored token
     UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedRight:)];
@@ -95,40 +97,6 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-
-#pragma mark - RSTwitterEngine Delegate Methods
-
-- (void)twitterEngine:(RSTwitterEngine *)engine needsToOpenURL:(NSURL *)url
-{
-    self.webView = [[WebViewController alloc] initWithURL:url];
-    self.webView.delegate = self;
-    
-    [self presentModalViewController:self.webView animated:YES];
-}
-
-- (void)twitterEngine:(RSTwitterEngine *)engine statusUpdate:(NSString *)message
-{
-    self.statusLabel.text = message;
-}
-
-#pragma mark - WebViewController Delegate Methods
-
-- (void)dismissWebView
-{
-    [self dismissModalViewControllerAnimated:YES];
-    if (self.twitterEngine) [self.twitterEngine cancelAuthentication];
-}
-
-- (void)handleURL:(NSURL *)url
-{
-    [self dismissModalViewControllerAnimated:YES];
-    
-    if ([url.query hasPrefix:@"denied"]) {
-        if (self.twitterEngine) [self.twitterEngine cancelAuthentication];
-    } else {
-        if (self.twitterEngine) [self.twitterEngine resumeAuthenticationFlowWithURL:url];
-    }
 }
 
 #pragma mark - Custom Methods

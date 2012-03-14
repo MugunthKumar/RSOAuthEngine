@@ -27,10 +27,9 @@
 #import "RSTwitterEngine.h"
 #import "WebViewController.h"
 
-@interface ViewController : UIViewController <RSTwitterEngineDelegate, WebViewControllerDelegate>
+@interface ViewController : UIViewController
 
 @property (strong, nonatomic) RSTwitterEngine *twitterEngine;
-@property (strong, nonatomic) WebViewController *webView;
 
 @property (unsafe_unretained, nonatomic) IBOutlet UITextView *textView;
 @property (unsafe_unretained, nonatomic) IBOutlet UIBarButtonItem *sendButton;

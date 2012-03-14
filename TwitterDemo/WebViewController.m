@@ -26,90 +26,108 @@
 #import "WebViewController.h"
 #import "AppDelegate.h"
 
+// Private Methods
+// this should be added before implementation 
+@interface WebViewController (/*Private Methods*/)
+@property (retain, nonatomic) NSURL *currentURL;
+@property (unsafe_unretained, nonatomic) IBOutlet UIWebView *webView;
+@property (unsafe_unretained, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
+
+- (IBAction)cancelAction:(id)sender;
+@end
+
 @implementation WebViewController
 
-@synthesize delegate = _delegate;
 @synthesize currentURL = _currentURL;
 @synthesize webView = _webView;
 @synthesize activityIndicator = _activityIndicator;
+@synthesize callbackURL = _callbackURL;
+
+@synthesize authenticationCompletedHandler = _authenticationCompletedHandler;
+@synthesize authenticationCanceledHandler = _authenticationCanceledHandler;
 
 #pragma mark - Initialization
 
 - (id)initWithURL:(NSURL *)url
 {
-    self = [self initWithNibName:@"WebViewController" bundle:nil];
-    
-    if (self) {
-        self.currentURL = url;
-        self.delegate = nil;
-    }
-    
-    return self;
+  self = [self initWithNibName:@"WebViewController" bundle:nil];
+  
+  if (self) {
+    self.currentURL = url;
+  }
+  
+  return self;
 }
 
 #pragma mark - View Lifecycle
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
-    
-    self.webView.scalesPageToFit = YES;
-    [self.webView loadRequest:[NSURLRequest requestWithURL:self.currentURL]];
+  [super viewDidLoad];
+  
+  self.webView.scalesPageToFit = YES;
+  [self.webView loadRequest:[NSURLRequest requestWithURL:self.currentURL]];
 }
 
 - (void)viewDidUnload
 {
-    [self setWebView:nil];
-    [self setActivityIndicator:nil];
-    
-    [super viewDidUnload];
+  [self setWebView:nil];
+  [self setActivityIndicator:nil];
+  
+  [super viewDidUnload];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+  return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
 #pragma mark - UIWebView Delegate Methods
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
-    if ([request.URL.scheme isEqualToString:@"rstwitterengine"] && (self.delegate)) {
-        if (self.activityIndicator) [self.activityIndicator stopAnimating];
-        [self.delegate handleURL:request.URL];
-        return NO;
+  if ([[request.URL absoluteString] rangeOfString:@"http://kulatribe.com/twitter_auth_token"].location != NSNotFound) {
+    
+    if (self.activityIndicator) [self.activityIndicator stopAnimating];
+    
+    if ([request.URL.query hasPrefix:@"denied"]) {
+      self.authenticationCanceledHandler();
     } else {
-        return YES;
-    }
+      self.authenticationCompletedHandler(request.URL);
+    }    
+    return NO;
+  } else {
+    return YES;
+  }
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-    if (self.activityIndicator) [self.activityIndicator startAnimating];
+  if (self.activityIndicator) [self.activityIndicator startAnimating];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    if (self.activityIndicator) [self.activityIndicator stopAnimating];
+  if (self.activityIndicator) [self.activityIndicator stopAnimating];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-    if (self.activityIndicator) [self.activityIndicator stopAnimating];
-    
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
-                                                    message:[error localizedDescription]
-                                                   delegate:nil
-                                          cancelButtonTitle:@"Dismiss"
-                                          otherButtonTitles:nil];
-    [alert show];
+  if (self.activityIndicator) [self.activityIndicator stopAnimating];
+  
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                  message:[error localizedDescription]
+                                                 delegate:nil
+                                        cancelButtonTitle:@"Dismiss"
+                                        otherButtonTitles:nil];
+  [alert show];
 }
 
 #pragma mark - Custom Methods
 
 - (IBAction)cancelAction:(id)sender
 {
-    if (self.delegate) [self.delegate dismissWebView];
+  self.authenticationCanceledHandler();
 }
 
 @end

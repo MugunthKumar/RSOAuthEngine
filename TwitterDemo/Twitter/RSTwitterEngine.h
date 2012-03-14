@@ -28,6 +28,7 @@
 @protocol RSTwitterEngineDelegate;
 
 typedef void (^RSTwitterEngineCompletionBlock)(NSError *error);
+typedef void (^RSTwitterEngineStatusChangeHandler)(NSString *newStatus);
 
 @interface RSTwitterEngine : RSOAuthEngine
 {
@@ -35,21 +36,14 @@ typedef void (^RSTwitterEngineCompletionBlock)(NSError *error);
     NSString *_screenName;
 }
 
-@property (assign) id <RSTwitterEngineDelegate> delegate;
+@property (nonatomic, copy) RSTwitterEngineStatusChangeHandler statusChangeHandler;
 @property (readonly) NSString *screenName;
 
-- (id)initWithDelegate:(id <RSTwitterEngineDelegate>)delegate;
+- (id)initWithStatusChangedHandler:(RSTwitterEngineStatusChangeHandler) handler;
 - (void)authenticateWithCompletionBlock:(RSTwitterEngineCompletionBlock)completionBlock;
 - (void)resumeAuthenticationFlowWithURL:(NSURL *)url;
 - (void)cancelAuthentication;
 - (void)forgetStoredToken;
 - (void)sendTweet:(NSString *)tweet withCompletionBlock:(RSTwitterEngineCompletionBlock)completionBlock;
-
-@end
-
-@protocol RSTwitterEngineDelegate <NSObject>
-
-- (void)twitterEngine:(RSTwitterEngine *)engine needsToOpenURL:(NSURL *)url;
-- (void)twitterEngine:(RSTwitterEngine *)engine statusUpdate:(NSString *)message;
 
 @end
