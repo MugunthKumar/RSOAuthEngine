@@ -1,3 +1,14 @@
+## iOS 5 related Twitter updates to RSTwitterEngine
+This is a fork of RSOAuthEngine
+I removed Instapaper demo and added support for iOS 5 Twitter Accounts on iOS 5 devices to RSTwitterEngine.
+
+Clone this repo if all you need is Twitter support.
+If you need a full fledged oAuth support, clone the parent from @rsieiro
+
+--
+Mugunth
+
+
 # RSOAuthEngine
 By Rodrigo Sieiro - [@rsieiro](http://twitter.com/rsieiro)  
 [http://rodrigo.sharpcube.com](http://rodrigo.sharpcube.com)
@@ -46,7 +57,7 @@ Alternatively you could use `setAccessToken:secret` after initialization to defi
 
 <ol>
 <li>In the project directory, run <code>git submodule update --init</code> to retrieve MKNetworkKit (added to the project as a submodule).</li>
-<li>Put your consumer key and secret at the top of <code>RSTwitterEngine.m</code> and remove the <code>#error</code> macro. If you don't have a consumer key/secret, register an app at <a href="https://dev.twitter.com/apps">https://dev.twitter.com/apps</a> to get a pair. <strong>Important</strong>: you need to add a dummy callback URL to your app when registering, otherwise Twitter won't allow you to send a callback URL in the OAuth request.</li>
+<li>Put your consumer key and secret in RSTwitterConfigs.h and remove the <code>#error</code> macro. If you don't have a consumer key/secret, register an app at <a href="https://dev.twitter.com/apps">https://dev.twitter.com/apps</a> to get a pair. <strong>Important</strong>: you need to add a dummy callback URL to your app when registering, otherwise Twitter won't allow you to send a callback URL in the OAuth request.</li>
 </ol>
 
 <h3>Tips</h3>
@@ -56,33 +67,6 @@ Alternatively you could use `setAccessToken:secret` after initialization to defi
   </tr>
 </table>
 
-## Instapaper Demo
-
-<table>
-  <tr>
-	<td width="300">
-<img src="https://github.com/rsieiro/RSOAuthEngine/raw/master/screenshot-2.png" alt="Screenshot" width="396" />
-	</td>
-	<td valign="top">
-<h3>About</h3>
-
-<p>This sample project demonstrates how to use <strong>RSOAuthEngine</strong> with xAuth to authenticate with Instapaper. It includes a basic engine that implements Instapapers's xAuth authentication flow and allows you to add a bookmark to your account. It also shows you how to persist the OAuth access token in the Keychain. The Instapaper engine should not be considered production code, and is only included to demonstrate <strong>RSOAuthEngine</strong>.</p>
-
-<h3>Building</h3>
-
-<p>To build the demo project, follow these steps:</p>
-
-<ol>
-<li>In the project directory, run <code>git submodule update --init</code> to retrieve MKNetworkKit (added to the project as a submodule).</li>
-<li>Put your consumer key and secret at the top of <code>RSInstapaperEngine.m</code> and remove the <code>#error</code> macro. If you don't have a consumer key/secret, register an app at <a href="http://www.instapaper.com/main/request_oauth_consumer_token">this page</a> to get a pair. <strong>Important</strong>: most Instapaper API methods are only available to users with a Subscription account.</li>
-</ol>
-
-<h3>Tips</h3>
-
-<p>Swipe from left to right in the status message to clear previously stored OAuth tokens.</p>
-	</td>
-  </tr>
-</table>
 
 ## Compatibility
 
