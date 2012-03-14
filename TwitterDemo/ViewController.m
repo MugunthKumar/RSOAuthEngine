@@ -48,6 +48,7 @@
       self.statusLabel.text = newStatus;
     }];
     
+    self.twitterEngine.presentingViewController = self;
     // A right swipe on the status label will clear the stored token
     UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedRight:)];
     swipeRight.direction = UISwipeGestureRecognizerDirectionRight;

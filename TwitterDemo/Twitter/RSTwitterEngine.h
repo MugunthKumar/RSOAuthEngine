@@ -37,6 +37,8 @@ typedef void (^RSTwitterEngineStatusChangeHandler)(NSString *newStatus);
 }
 
 @property (nonatomic, copy) RSTwitterEngineStatusChangeHandler statusChangeHandler;
+@property (assign, nonatomic) UIViewController *presentingViewController;
+
 @property (readonly) NSString *screenName;
 
 - (id)initWithStatusChangedHandler:(RSTwitterEngineStatusChangeHandler) handler;

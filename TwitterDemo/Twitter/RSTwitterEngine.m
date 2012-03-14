@@ -49,6 +49,7 @@
 
 @synthesize webController = _webController;
 @synthesize statusChangeHandler = _statusChangeHandler;
+@synthesize presentingViewController = _presentingViewController;
 
 #pragma mark - Read-only Properties
 
@@ -304,21 +305,22 @@
   
   self.webController = [[WebViewController alloc] initWithURL:url];  
   self.webController.callbackURL = TW_CALLBACK_URL;
-  UIViewController *presentingViewController = [[[UIApplication sharedApplication] windows] objectAtIndex:0]; 
-  [presentingViewController presentModalViewController:self.webController animated:YES];
+
+  [self.presentingViewController presentModalViewController:self.webController animated:YES];
 
   __unsafe_unretained RSTwitterEngine *weakSelf = self; 
   
   self.webController.authenticationCanceledHandler = ^{
 
     __strong RSTwitterEngine *strongSelf = weakSelf; 
-    [presentingViewController dismissModalViewControllerAnimated:YES];
+    [strongSelf.presentingViewController dismissModalViewControllerAnimated:YES];
     [strongSelf cancelAuthentication];
   };
   
   self.webController.authenticationCompletedHandler = ^(NSURL* url) {
   
     __strong RSTwitterEngine *strongSelf = weakSelf; 
+    [strongSelf.presentingViewController dismissModalViewControllerAnimated:YES];
     [strongSelf resumeAuthenticationFlowWithURL:url];
   };
 }
