@@ -49,7 +49,8 @@
 
 @property (strong, nonatomic) RSWebViewController *webController;
 @property (strong, nonatomic) ACAccount *iOS5TwitterAccount;
-
+@property (strong, nonatomic) ACAccountStore *accountStore;
+@property (strong, nonatomic) ACAccountType *accountType;
 @end
 
 @implementation RSTwitterEngine
@@ -58,6 +59,8 @@
 @synthesize statusChangeHandler = _statusChangeHandler;
 @synthesize presentingViewController = _presentingViewController;
 @synthesize iOS5TwitterAccount = _iOS5TwitterChosenAccount;
+@synthesize accountStore = _accountStore;
+@synthesize accountType = _accountType;
 
 #pragma mark - Read-only Properties
 
@@ -184,18 +187,18 @@
   
   if(![ACAccountStore class]) completionBlock();
   
-  ACAccountStore *account = [[ACAccountStore alloc] init];
-  ACAccountType *accountType = [account accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
+  self.accountStore = [[ACAccountStore alloc] init];
+  self.accountType = [self.accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
   self.statusChangeHandler(@"Authenticating...");
 
-  [account requestAccessToAccountsWithType:accountType withCompletionHandler:^(BOOL granted, NSError *error) 
+  [self.accountStore requestAccessToAccountsWithType:self.accountType withCompletionHandler:^(BOOL granted, NSError *error) 
    {
      if (!granted) {
        completionBlock();
        return;      
      }
 
-     NSArray *arrayOfAccounts = [account accountsWithAccountType:accountType];
+     NSArray *arrayOfAccounts = [self.accountStore accountsWithAccountType:self.accountType];
      if([arrayOfAccounts count] <= 0) {
        completionBlock();
        return;      
@@ -222,7 +225,7 @@
                                 showInView:self.presentingViewController.view 
                                  onDismiss:^(int buttonIndex) {
                                    
-                                   self.iOS5TwitterAccount = [[account accountsWithAccountType:accountType] objectAtIndex:buttonIndex];
+                                   self.iOS5TwitterAccount = [[self.accountStore accountsWithAccountType:accountType] objectAtIndex:buttonIndex];
                                    _screenName = self.iOS5TwitterAccount.username;
 
                                    completionBlock();
