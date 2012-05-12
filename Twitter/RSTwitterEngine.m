@@ -225,7 +225,7 @@
                                 showInView:self.presentingViewController.view 
                                  onDismiss:^(int buttonIndex) {
                                    
-                                   self.iOS5TwitterAccount = [[self.accountStore accountsWithAccountType:accountType] objectAtIndex:buttonIndex];
+                                   self.iOS5TwitterAccount = [[self.accountStore accountsWithAccountType:self.accountType] objectAtIndex:buttonIndex];
                                    _screenName = self.iOS5TwitterAccount.username;
 
                                    completionBlock();
